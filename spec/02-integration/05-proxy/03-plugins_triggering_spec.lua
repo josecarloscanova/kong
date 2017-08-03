@@ -25,64 +25,64 @@ describe("Plugins triggering", function()
 
     -- Global configuration
     assert(helpers.dao.apis:insert {
-      name = "global1",
-      hosts = { "global1.com" },
-      upstream_url = "http://mockbin.com"
+      name         = "global1",
+      hosts        = { "global1.com" },
+      upstream_url = helpers.mock_upstream_url,
     })
     assert(helpers.dao.plugins:insert {
-      name = "key-auth",
-      config = { }
+      name   = "key-auth",
+      config = {},
     })
     assert(helpers.dao.plugins:insert {
-      name = "rate-limiting",
+      name   = "rate-limiting",
       config = {
         hour = 1,
-      }
+      },
     })
 
     -- API Specific Configuration
     local api1 = assert(helpers.dao.apis:insert {
-      name = "api1",
-      hosts = { "api1.com" },
-      upstream_url = "http://mockbin.com"
+      name         = "api1",
+      hosts        = { "api1.com" },
+      upstream_url = helpers.mock_upstream_url,
     })
     assert(helpers.dao.plugins:insert {
-      name = "rate-limiting",
+      name   = "rate-limiting",
       api_id = api1.id,
       config = {
         hour = 2,
-      }
+      },
     })
 
     -- Consumer Specific Configuration
     assert(helpers.dao.plugins:insert {
-      name = "rate-limiting",
+      name        = "rate-limiting",
       consumer_id = consumer2.id,
-      config = {
+      config      = {
         hour = 3,
-      }
+      },
     })
 
     -- API and Consumer Configuration
     local api2 = assert(helpers.dao.apis:insert {
-      name = "api2",
-      hosts = { "api2.com" },
-      upstream_url = "http://mockbin.com"
+      name         = "api2",
+      hosts        = { "api2.com" },
+      upstream_url = helpers.mock_upstream_url,
     })
     assert(helpers.dao.plugins:insert {
-      name = "rate-limiting",
-      api_id = api2.id,
+      name        = "rate-limiting",
+      api_id      = api2.id,
       consumer_id = consumer2.id,
       config = {
         hour = 4,
-      }
+      },
     })
 
     -- API with anonymous configuration
     local api3 = assert(helpers.dao.apis:insert {
-      name = "api3",
-      hosts = { "api3.com" },
-      upstream_url = "http://mockbin.com"
+      name         = "api3",
+      hosts        = { "api3.com" },
+      upstream_url = helpers.mock_upstream_url,
     })
     assert(helpers.dao.plugins:insert {
       name = "key-auth",
@@ -100,7 +100,9 @@ describe("Plugins triggering", function()
       }
     })
 
-    assert(helpers.start_kong())
+    assert(helpers.start_kong({
+      nginx_conf = "spec/fixtures/custom_nginx.template",
+    }))
     client = helpers.proxy_client()
   end)
 
